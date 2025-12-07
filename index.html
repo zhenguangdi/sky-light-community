@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光遇 Sky - 温暖的灵魂终将相遇</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sky: {
+                            primary: '#87CEEB', // 天空蓝
+                            secondary: '#FFB6C1', // 浅粉
+                            accent: '#F0E68C', // 米黄
+                            dark: '#1A3A5C', // 深海蓝
+                            light: '#F8F9FA', // 浅白
+                        },
+                        gradient: {
+                            dawn: 'linear-gradient(120deg, #FFD1DC, #87CEEB)',
+                            dusk: 'linear-gradient(120deg, #1A3A5C, #87CEEB)',
+                        }
+                    },
+                    fontFamily: {
+                        sky: ['"Microsoft YaHei"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(135, 206, 235, 0.8)',
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+            .glass {
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .section-padding {
+                @apply py-12 md:py-20;
+            }
+            .section-title {
+                @apply text-3xl md:text-4xl font-bold text-sky-dark mb-8 text-center;
+            }
+            .btn-primary {
+                @apply bg-sky-primary hover:bg-sky-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 shadow-glow hover:shadow-lg transform hover:-translate-y-1;
+            }
+            .btn-secondary {
+                @apply bg-white hover:bg-sky-light text-sky-dark font-medium py-3 px-6 rounded-lg transition-all duration-300 shadow-soft hover:shadow-lg transform hover:-translate-y-1 border border-sky-primary/30;
+            }
+        }
+    </style>
+</head>
+<body class="font-sky bg-sky-light text-sky-dark">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-sky-primary flex items-center justify-center mr-3">
+                        <i class="fa fa-paper-plane-o text-xl text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-sky-dark">光遇 Sky</span>
+                </div>
+                
+                <!-- 桌面导航 -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-sky-dark hover:text-sky-primary transition-colors">首页</a>
+                    <a href="#game-intro" class="text-sky-dark hover:text-sky-primary transition-colors">游戏介绍</a>
+                    <a href="#community" class="text-sky-dark hover:text-sky-primary transition-colors">玩家社区</a>
+                    <a href="#strategy" class="text-sky-dark hover:text-sky-primary transition-colors">攻略指南</a>
+                    <a href="#download" class="text-sky-dark hover:text-sky-primary transition-colors">下载游戏</a>
+                </div>
+                
+                <!-- 用户操作 + 移动端菜单 -->
+                <div class="flex items-center space-x-4">
+                    <button id="login-btn" class="btn-secondary py-2 px-4 text-sm hidden md:block">登录</button>
+                    <button id="mobile-menu-btn" class="md:hidden text-sky-dark focus:outline-none">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 移动端导航菜单 -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
+                <a href="#home" class="block py-2 text-sky-dark hover:text-sky-primary">首页</a>
+                <a href="#game-intro" class="block py-2 text-sky-dark hover:text-sky-primary">游戏介绍</a>
+                <a href="#community" class="block py-2 text-sky-dark hover:text-sky-primary">玩家社区</a>
+                <a href="#strategy" class="block py-2 text-sky-dark hover:text-sky-primary">攻略指南</a>
+                <a href="#download" class="block py-2 text-sky-dark hover:text-sky-primary">下载游戏</a>
+                <button id="mobile-login-btn" class="btn-secondary w-full mt-2 py-2">登录/注册</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 登录模态框 -->
+    <div id="login-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-sky-dark">登录光遇社区</h3>
+                    <button class="close-modal text-gray-400 hover:text-sky-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="login-username" class="block text-sm font-medium text-gray-600 mb-1">用户名/邮箱</label>
+                        <input type="text" id="login-username" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                    </div>
+                    <div class="mb-6">
+                        <label for="login-password" class="block text-sm font-medium text-gray-600 mb-1">密码</label>
+                        <input type="password" id="login-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                    </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember-me" class="h-4 w-4 text-sky-primary focus:ring-sky-primary border-gray-300 rounded">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-600">记住我</label>
+                        </div>
+                        <a href="#" class="text-sm text-sky-primary hover:text-sky-dark">忘记密码?</a>
+                    </div>
+                    <button type="submit" class="w-full btn-primary">登录</button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">还没有账号? <a href="#" id="show-register" class="text-sky-primary hover:text-sky-dark">立即注册</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="register-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-sky-dark">注册光遇账号</h3>
+                    <button class="close-modal text-gray-400 hover:text-sky-dark">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="register-form">
+                    <div class="mb-4">
+                        <label for="register-username" class="block text-sm font-medium text-gray-600 mb-1">昵称</label>
+                        <input type="text" id="register-username" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                    </div>
+                    <div class="mb-4">
+                        <label for="register-email" class="block text-sm font-medium text-gray-600 mb-1">电子邮箱</label>
+                        <input type="email" id="register-email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                    </div>
+                    <div class="mb-4">
+                        <label for="register-password" class="block text-sm font-medium text-gray-600 mb-1">密码</label>
+                        <input type="password" id="register-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                    </div>
+                    <div class="mb-6">
+                        <label for="register-confirm-password" class="block text-sm font-medium text-gray-600 mb-1">确认密码</label>
+                        <input type="password" id="register-confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                    </div>
+                    <div class="flex items-center mb-6">
+                        <input type="checkbox" id="agree-terms" class="h-4 w-4 text-sky-primary focus:ring-sky-primary border-gray-300 rounded">
+                        <label for="agree-terms" class="ml-2 block text-sm text-gray-600">我同意 <a href="#" class="text-sky-primary hover:text-sky-dark">服务条款</a> 和 <a href="#" class="text-sky-primary hover:text-sky-dark">隐私政策</a></label>
+                    </div>
+                    <button type="submit" class="w-full btn-primary">注册</button>
+                </form>
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">已有账号? <a href="#" id="show-login" class="text-sky-primary hover:text-sky-dark">立即登录</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 首页横幅 -->
+    <section id="home" class="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-dawn">
+        <div class="absolute inset-0 z-0">
+            <img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2024/3/18/1710798856790~tplv-t2oaga2asx-image.image" 
+                 alt="光遇背景" 
+                 class="w-full h-full object-cover opacity-20">
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white text-shadow-lg">
+                        光遇 <span class="text-sky-dark">Sky</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 text-white text-shadow">
+                        温暖的灵魂终将相遇，在云海中寻找属于你的光
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button class="btn-primary text-lg">
+                            <i class="fa fa-gamepad mr-2"></i> 开始冒险
+                        </button>
+                        <button class="btn-secondary text-lg">
+                            <i class="fa fa-users mr-2"></i> 加入社区
+                        </button>
+                    </div>
+                    
+                    <div class="mt-10 flex items-center space-x-6">
+                        <div class="flex -space-x-2">
+                            <img src="https://p3-passport.byteacctimg.com/img/user-avatar/99c9755178990547d51128f1a9945423d~300x300.image" alt="玩家" class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src="https://p3-passport.byteacctimg.com/img/user-avatar/8c989f799099887766554433221100aa~300x300.image" alt="玩家" class="w-10 h-10 rounded-full border-2 border-white">
+                            <img src="https://p3-passport.byteacctimg.com/img/user-avatar/778899aabbccddeeff00112233445566~300x300.image" alt="玩家" class="w-10 h-10 rounded-full border-2 border-white">
+                            <div class="w-10 h-10 rounded-full bg-sky-primary flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                                +999
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center text-white">
+                                <i class="fa fa-users mr-2"></i>
+                                <span>100万+ 光之子</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative w-full max-w-md">
+                        <img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2023/11/28/1701171050679~tplv-t2oaga2asx-image.image" 
+                             alt="光遇游戏截图" 
+                             class="w-full rounded-lg shadow-xl transform hover:scale-105 transition-all duration-500">
+                        <div class="absolute -top-4 -right-4 bg-sky-accent text-sky-dark rounded-full w-16 h-16 flex items-center justify-center text-xl font-bold shadow-glow">
+                            2025
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 游戏介绍 -->
+    <section id="game-intro" class="section-padding bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">游戏介绍</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
+                <div>
+                    <h3 class="text-2xl font-bold mb-6 text-sky-dark">关于光遇</h3>
+                    <p class="text-gray-700 mb-4 leading-relaxed">
+                        《光·遇》是由游戏制作人陈星汉及其团队Thatgamecompany开发的社交冒险游戏，网易游戏代理运营。游戏以爱与给予为主题，玩家将化身“光之后裔”，在天空王国的奇妙大陆上展开冒险。
+                    </p>
+                    <p class="text-gray-700 mb-6 leading-relaxed">
+                        在旅途中，你将与不同的人和奇幻世界的生物相遇，将光明带回这个失落的王国。与心爱的人们携手，展开一场充满温暖与感动的云端之旅。
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <i class="fa fa-heart text-sky-secondary text-xl mr-3"></i>
+                            <span class="text-gray-700">温暖的社交体验</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa fa-paint-brush text-sky-secondary text-xl mr-3"></i>
+                            <span class="text-gray-700">唯美治愈的画面</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa fa-map-o text-sky-secondary text-xl mr-3"></i>
+                            <span class="text-gray-700">广阔的奇幻世界</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa fa-music text-sky-secondary text-xl mr-3"></i>
+                            <span class="text-gray-700">沉浸式音乐体验</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1f9636099746439092828a7129165078~tplv-k3u1fbpfcp-watermark.image" 
+                         alt="光遇游戏场景" 
+                         class="w-full rounded-lg shadow-soft">
+                </div>
+            </div>
+            
+            <!-- 游戏特色 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 特色1 -->
+                <div class="bg-sky-light rounded-xl p-6 shadow-soft hover:shadow-glow transition-all duration-300">
+                    <div class="w-16 h-16 bg-sky-primary/20 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fa fa-handshake-o text-3xl text-sky-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-sky-dark">相遇与陪伴</h3>
+                    <p class="text-gray-700">
+                        与陌生人相遇，携手同行，在广阔的天空王国中相互照亮，共同前行。每一次相遇都是独一无二的缘分。
+                    </p>
+                </div>
+                
+                <!-- 特色2 -->
+                <div class="bg-sky-light rounded-xl p-6 shadow-soft hover:shadow-glow transition-all duration-300">
+                    <div class="w-16 h-16 bg-sky-primary/20 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fa fa-compass text-3xl text-sky-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-sky-dark">探索与发现</h3>
+                    <p class="text-gray-700">
+                        从晨岛出发，飞越云野、雨林、霞谷、暮土、禁阁，探索每个场景的隐藏秘密，收集光之翼，解锁更多能力。
+                    </p>
+                </div>
+                
+                <!-- 特色3 -->
+                <div class="bg-sky-light rounded-xl p-6 shadow-soft hover:shadow-glow transition-all duration-300">
+                    <div class="w-16 h-16 bg-sky-primary/20 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fa fa-gift text-3xl text-sky-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-sky-dark">给予与分享</h3>
+                    <p class="text-gray-700">
+                        分享蜡烛，赠送心火，帮助他人，在给予中收获温暖。游戏中没有竞争，只有相互扶持的美好。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 玩家社区 -->
+    <section id="community" class="section-padding bg-sky-light">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">玩家社区</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
+                <!-- 左侧：社区动态 -->
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-bold mb-6 text-sky-dark">光遇动态</h3>
+                    
+                    <!-- 社区帖子列表 -->
+                    <div class="space-y-6">
+                        <!-- 帖子1 -->
+                        <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-glow transition-all duration-300">
+                            <div class="flex items-start">
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/99c9755178990547d51128f1a9945423d~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <div class="flex items-center">
+                                        <h4 class="font-bold text-sky-dark">光遇官方</h4>
+                                        <span class="ml-2 text-xs bg-sky-primary text-white px-2 py-1 rounded">官方</span>
+                                    </div>
+                                    <p class="text-gray-500 text-sm mt-1">2小时前</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h5 class="font-bold text-lg text-sky-dark mb-2">【更新公告】风行季正式开启</h5>
+                                <p class="text-gray-700 mb-4">
+                                    亲爱的光之子们，风行季已正式上线！全新的地图场景、可爱的风行季先祖、独特的斗篷和装扮，等待各位光之子前来探索。
+                                </p>
+                                <img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8c166999887766554433221100aabbcc~tplv-k3u1fbpfcp-watermark.image" 
+                                     alt="风行季更新" 
+                                     class="w-full h-48 object-cover rounded-lg mb-4">
+                                <div class="flex space-x-6">
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-thumbs-up mr-1"></i> 1280
+                                    </button>
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-comment mr-1"></i> 328
+                                    </button>
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-share mr-1"></i> 分享
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 帖子2 -->
+                        <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-glow transition-all duration-300">
+                            <div class="flex items-start">
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/8c989f799099887766554433221100aa~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <div class="flex items-center">
+                                        <h4 class="font-bold text-sky-dark">云野小萌新</h4>
+                                        <span class="ml-2 text-xs bg-sky-accent text-sky-dark px-2 py-1 rounded">达人</span>
+                                    </div>
+                                    <p class="text-gray-500 text-sm mt-1">昨天</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h5 class="font-bold text-lg text-sky-dark mb-2">分享雨林小金人位置大全</h5>
+                                <p class="text-gray-700 mb-4">
+                                    整理了雨林所有小金人的位置，附详细路线图和截图，萌新必看！帮助大家快速收集光之翼，再也不用在雨林迷路啦～
+                                </p>
+                                <div class="grid grid-cols-3 gap-2 mb-4">
+                                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/112233445566778899aabbccddeeff00~tplv-k3u1fbpfcp-watermark.image" alt="雨林攻略1" class="w-full h-24 object-cover rounded">
+                                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2233445566778899aabbccddeeff0011~tplv-k3u1fbpfcp-watermark.image" alt="雨林攻略2" class="w-full h-24 object-cover rounded">
+                                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/33445566778899aabbccddeeff001122~tplv-k3u1fbpfcp-watermark.image" alt="雨林攻略3" class="w-full h-24 object-cover rounded">
+                                </div>
+                                <div class="flex space-x-6">
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-thumbs-up mr-1"></i> 2560
+                                    </button>
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-comment mr-1"></i> 486
+                                    </button>
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-share mr-1"></i> 分享
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 帖子3 -->
+                        <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-glow transition-all duration-300">
+                            <div class="flex items-start">
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/778899aabbccddeeff00112233445566~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <div class="flex items-center">
+                                        <h4 class="font-bold text-sky-dark">霞谷跑图选手</h4>
+                                    </div>
+                                    <p class="text-gray-500 text-sm mt-1">3天前</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h5 class="font-bold text-lg text-sky-dark mb-2">求固玩！每天晚上在线</h5>
+                                <p class="text-gray-700 mb-4">
+                                    安卓服，每天晚上8点后在线，会跑图会献祭，想找个固玩一起玩，互相送心，一起打卡景点～萌新也可以，我可以带跑图！
+                                </p>
+                                <div class="flex space-x-6">
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-thumbs-up mr-1"></i> 640
+                                    </button>
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-comment mr-1"></i> 248
+                                    </button>
+                                    <button class="flex items-center text-gray-500 hover:text-sky-primary">
+                                        <i class="fa fa-share mr-1"></i> 分享
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <button class="btn-secondary">
+                            查看更多动态
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 右侧：社区数据和排行 -->
+                <div>
+                    <h3 class="text-2xl font-bold mb-6 text-sky-dark">社区排行</h3>
+                    
+                    <!-- 热门玩家 -->
+                    <div class="bg-white rounded-xl p-6 shadow-soft mb-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-sky-dark">热门玩家</h4>
+                            <select class="bg-sky-light text-sky-dark border border-sky-primary/30 rounded px-2 py-1 text-sm">
+                                <option>本周</option>
+                                <option>本月</option>
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- 排行1 -->
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-sky-accent rounded-full flex items-center justify-center text-sky-dark font-bold mr-4">
+                                    1
+                                </div>
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/112233445566778899aabbcc~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-grow">
+                                    <h5 class="font-bold text-sky-dark">光遇攻略组</h5>
+                                    <div class="flex items-center">
+                                        <i class="fa fa-star text-sky-accent mr-1"></i>
+                                        <span class="text-gray-500 text-sm">粉丝: 12.5万</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 排行2 -->
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sky-dark font-bold mr-4">
+                                    2
+                                </div>
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/2233445566778899aabbcc~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-grow">
+                                    <h5 class="font-bold text-sky-dark">云野打卡达人</h5>
+                                    <div class="flex items-center">
+                                        <i class="fa fa-star text-gray-300 mr-1"></i>
+                                        <span class="text-gray-500 text-sm">粉丝: 8.8万</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 排行3 -->
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                                    3
+                                </div>
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/33445566778899aabbcc~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-grow">
+                                    <h5 class="font-bold text-sky-dark">雨林守护者</h5>
+                                    <div class="flex items-center">
+                                        <i class="fa fa-star text-amber-700 mr-1"></i>
+                                        <span class="text-gray-500 text-sm">粉丝: 6.7万</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 排行4-5 -->
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sky-dark font-bold mr-4">
+                                    4
+                                </div>
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/445566778899aabbcc~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-grow">
+                                    <h5 class="font-bold text-sky-dark">霞谷竞速王</h5>
+                                    <span class="text-gray-500 text-sm">粉丝: 5.2万</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sky-dark font-bold mr-4">
+                                    5
+                                </div>
+                                <img src="https://p3-passport.byteacctimg.com/img/user-avatar/5566778899aabbccdd~300x300.image" 
+                                     alt="用户头像" 
+                                     class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-grow">
+                                    <h5 class="font-bold text-sky-dark">禁阁探索者</h5>
+                                    <span class="text-gray-500 text-sm">粉丝: 4.9万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 社区数据 -->
+                    <div class="bg-white rounded-xl p-6 shadow-soft mb-8">
+                        <h4 class="font-bold text-sky-dark mb-4">社区数据</h4>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <canvas id="activityChart" height="180"></canvas>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div class="bg-sky-light p-3 rounded-lg">
+                                    <div class="text-2xl font-bold text-sky-primary">100万+</div>
+                                    <div class="text-gray-600 text-sm">社区用户</div>
+                                </div>
+                                <div class="bg-sky-light p-3 rounded-lg">
+                                    <div class="text-2xl font-bold text-sky-primary">50万+</div>
+                                    <div class="text-gray-600 text-sm">月发帖量</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快速发布 -->
+                    <div class="bg-white rounded-xl p-6 shadow-soft">
+                        <h4 class="font-bold text-sky-dark mb-4">发布动态</h4>
+                        <textarea placeholder="分享你的光遇日常、攻略或心情..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-primary h-24 mb-4"></textarea>
+                        <div class="flex justify-between">
+                            <div class="flex space-x-2">
+                                <button class="text-gray-500 hover:text-sky-primary">
+                                    <i class="fa fa-image"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-sky-primary">
+                                    <i class="fa fa-video-camera"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-sky-primary">
+                                    <i class="fa fa-map-marker"></i>
+                                </button>
+                            </div>
+                            <button class="btn-primary py-2 px-4">发布</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 攻略指南 -->
+    <section id="strategy" class="section-padding bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title">攻略指南</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <button class="btn-secondary w-full">晨岛</button>
+                <button class="btn-primary w-full">云野</button>
+                <button class="btn-secondary w-full">雨林</button>
+                <button class="btn-secondary w-full">霞谷</button>
+                <button class="btn-secondary w-full">暮土</button>
+                <button class="btn-secondary w-full">禁阁</button>
+                <button class="btn-secondary w-full">献祭</button>
+                <button class="btn-secondary w-full">季节活动</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 攻略1 -->
+                <div class="rounded-xl overflow-hidden shadow-soft hover:shadow-glow transition-all duration-300">
+                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/111222333444555666777888999aabb~tplv-k3u1fbpfcp-watermark.image" 
+                         alt="云野攻略" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6 bg-white">
+                        <div class="flex items-center mb-3">
+                            <span class="bg-sky-primary/20 text-sky-primary text-xs px-2 py-1 rounded">新手攻略</span>
+                            <span class="text-gray-500 text-sm ml-auto">阅读量: 12.8万</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-sky-dark">云野全图攻略：小金人+蜡烛位置</h3>
+                        <p class="text-gray-700 mb-4 line-clamp-3">
+                            详细整理云野所有小金人（光之翼）和蜡烛堆的位置，附路线图和详细说明，帮助萌新快速收集，高效跑图。
+                        </p>
+                        <a href="#" class="text-sky-primary hover:text-sky-dark font-bold flex items-center">
+                            查看详情 <i class="fa fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 攻略2 -->
+                <div class="rounded-xl overflow-hidden shadow-soft hover:shadow-glow transition-all duration-300">
+                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/222333444555666777888999aabbcc~tplv-k3u1fbpfcp-watermark.image" 
+                         alt="雨林攻略" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6 bg-white">
+                        <div class="flex items-center mb-3">
+                            <span class="bg-sky-primary/20 text-sky-primary text-xs px-2 py-1 rounded">进阶攻略</span>
+                            <span class="text-gray-500 text-sm ml-auto">阅读量: 9.6万</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-sky-dark">雨林无伤跑图技巧</h3>
+                        <p class="text-gray-700 mb-4 line-clamp-3">
+                            雨林最让人头疼的就是淋雨掉翼？这份攻略教你如何无伤跑雨林，躲避雨水和螃蟹，高效收集蜡烛不翻车。
+                        </p>
+                        <a href="#" class="text-sky-primary hover:text-sky-dark font-bold flex items-center">
+                            查看详情 <i class="fa fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 攻略3 -->
+                <div class="rounded-xl overflow-hidden shadow-soft hover:shadow-glow transition-all duration-300">
+                    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/333444555666777888999aabbccdd~tplv-k3u1fbpfcp-watermark.image" 
+                         alt="献祭攻略" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6 bg-white">
+                        <div class="flex items-center mb-3">
+                            <span class="bg-sky-primary/20 text-sky-primary text-xs px-2 py-1 rounded">高手攻略</span>
+                            <span class="text-gray-500 text-sm ml-auto">阅读量: 15.2万</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-sky-dark">暴风眼献祭全攻略</h3>
+                        <p class="text-gray-700 mb-4 line-clamp-3">
+                            详细的献祭路线和技巧，教你如何高效献祭，获得更多升华蜡烛，解锁先祖兑换，萌新也能轻松献祭。
+                        </p>
+                        <a href="#" class="text-sky-primary hover:text-sky-dark font-bold flex items-center">
+                            查看详情 <i class="fa fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <button class="btn-secondary">
+                    查看更多攻略
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 下载游戏 -->
+    <section id="download" class="section-padding bg-gradient-dusk text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-white">下载游戏</h2>
+            
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h3 class="text-3xl font-bold mb-6 text-white">
+                        加入光遇的世界
+                    </h3>
+                    <p class="text-xl text-white/90 mb-8 leading-relaxed">
+                        支持iOS、Android、Switch、PC多平台，与全球玩家一起，在云海中相遇，共同探索这个温暖的世界。
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button class="btn-secondary text-lg flex items-center justify-center">
+                            <i class="fa fa-apple mr-3 text-2xl"></i>
+                            iOS 下载
+                        </button>
+                        <button class="btn-secondary text-lg flex items-center justify-center">
+                            <i class="fa fa-android mr-3 text-2xl"></i>
+                            安卓下载
+                        </button>
+                    </div>
+                    
+                    <div class="mt-8 grid grid-cols-2 gap-4">
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <div class="text-lg font-bold">官方客服</div>
+                            <div class="text-white/80">9:00-21:00 在线</div>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <div class="text-lg font-bold">游戏版本</div>
+                            <div class="text-white/80">v0.11.9 最新版</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/99887766554433221100aabbccddee~tplv-k3u1fbpfcp-watermark.image" 
+                         alt="光遇下载" 
+                         class="w-full max-w-md rounded-lg shadow-glow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-sky-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- 关于我们 -->
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-sky-primary flex items-center justify-center mr-3">
+                            <i class="fa fa-paper-plane-o text-xl text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">光遇 Sky</span>
+                    </div>
+                    <p class="text-white/70 mb-4">
+                        温暖的灵魂终将相遇，在光遇的世界里，每一次相遇都是美好的缘分。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white/70 hover:text-white">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="text-white/70 hover:text-white">
+                            <i class="fa fa-wechat"></i>
+                        </a>
+                        <a href="#" class="text-white/70 hover:text-white">
+                            <i class="fa fa-bilibili"></i>
+                        </a>
+                        <a href="#" class="text-white/70 hover:text-white">
+                            <i class="fa fa-qq"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 快速链接 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-white/70 hover:text-white">首页</a></li>
+                        <li><a href="#game-intro" class="text-white/70 hover:text-white">游戏介绍</a></li>
+                        <li><a href="#community" class="text-white/70 hover:text-white">玩家社区</a></li>
+                        <li><a href="#strategy" class="text-white/70 hover:text-white">攻略指南</a></li>
+                        <li><a href="#download" class="text-white/70 hover:text-white">下载游戏</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 支持 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">支持与帮助</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/70 hover:text-white">常见问题</a></li>
+                        <li><a href="#" class="text-white/70 hover:text-white">客服中心</a></li>
+                        <li><a href="#" class="text-white/70 hover:text-white">账号找回</a></li>
+                        <li><a href="#" class="text-white/70 hover:text-white">充值问题</a></li>
+                        <li><a href="#" class="text-white/70 hover:text-white">隐私政策</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 订阅 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">订阅更新</h3>
+                    <p class="text-white/70 mb-4">
+                        订阅我们的邮件，获取最新的游戏更新和活动信息！
+                    </p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="flex-grow px-4 py-2 bg-white/10 border border-white/20 rounded-l-md text-white focus:outline-none focus:ring-2 focus:ring-sky-primary">
+                        <button type="submit" class="bg-sky-primary hover:bg-sky-primary/90 text-white px-4 py-2 rounded-r-md transition-colors duration-300">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-white/10 text-center">
+                <p class="text-white/50">
+                    &copy; 2025 光遇 Sky 官方社区. 保留所有权利.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 移动端菜单切换
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 模态框功能
+        const loginModal = document.getElementById('login-modal');
+        const registerModal = document.getElementById('register-modal');
+        const loginBtn = document.getElementById('login-btn');
+        const mobileLoginBtn = document.getElementById('mobile-login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+        
+        // 打开登录模态框
+        loginBtn.addEventListener('click', function() {
+            loginModal.classList.remove('hidden');
+        });
+        
+        mobileLoginBtn.addEventListener('click', function() {
+            loginModal.classList.remove('hidden');
+        });
+        
+        // 从登录切换到注册
+        showRegister.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginModal.classList.add('hidden');
+            registerModal.classList.remove('hidden');
+        });
+        
+        // 从注册切换到登录
+        showLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            registerModal.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+        });
+        
+        // 关闭模态框
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                loginModal.classList.add('hidden');
+                registerModal.classList.add('hidden');
+            });
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(e) {
+            if (e.target === loginModal) {
+                loginModal.classList.add('hidden');
+            }
+            if (e.target === registerModal) {
+                registerModal.classList.add('hidden');
+            }
+        });
+        
+        // 表单提交处理
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('登录功能演示，实际项目中请对接后端接口');
+            loginModal.classList.add('hidden');
+        });
+        
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('注册功能演示，实际项目中请对接后端接口');
+            registerModal.classList.add('hidden');
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 移动端菜单关闭
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+        
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 社区活跃度图表
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            const activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '社区活跃度',
+                        data: [3000, 4500, 5200, 4800, 6000, 8500, 7800],
+                        borderColor: '#87CEEB',
+                        backgroundColor: 'rgba(135, 206, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                color: '#666'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-soft');
+                nav.classList.remove('glass');
+                nav.classList.add('bg-white');
+            } else {
+                nav.classList.remove('shadow-soft');
+                nav.classList.add('glass');
+                nav.classList.remove('bg-white');
+            }
+        });
+    </script>
+</body>
+</html>
